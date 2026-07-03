@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0F2A48">
+<title>Contrôle Atelier — Narbonne Accessoires</title>
+<link rel="manifest" href='data:application/manifest+json,{"name":"Contr%C3%B4le Atelier","short_name":"Contr%C3%B4le","start_url":".","display":"standalone","background_color":"%230F2A48","theme_color":"%230F2A48","icons":[]}'>
+<style>
+:root{
+  --navy:#0F2A48;
+  --navy-2:#173a5e;
+  --teal:#1D9E75;
+  --gold:#C9A227;
+  --ink:#1b2733;
+  --muted:#6a7a8a;
+  --line:#e2e8ee;
+  --bg:#eef2f6;
+  --card:#ffffff;
+  --e0:#D64545;
+  --e1:#E8833A;
+  --e2:#E3B505;
+  --e3:#7FB93E;
+  --e4:#1D9E75;
+  --radius:14px;
+  --shadow:0 1px 2px rgba(15,42,72,.06),0 8px 24px rgba(15,42,72,.06);
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  font-family:var(--font);
+  color:var(--ink);
+  background:var(--bg);
+  line-height:1.45;
+  padding-bottom:96px;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ---------- HEADER ---------- */
+.appbar{
+  position:sticky;top:0;z-index:40;
+  background:linear-gradient(180deg,var(--navy),var(--navy-2));
+  color:#fff;
+  padding:calc(env(safe-area-inset-top) + 14px) 18px 14px;
+  box-shadow:0 4px 20px rgba(15,42,72,.25);
+}
+.appbar-row{display:flex;align-items:center;gap:12px}
+.brand{display:flex;flex-direction:column;line-height:1.05}
+.brand .logo{font-weight:800;letter-spacing:.5px;font-size:17px}
+.brand .logo b{color:var(--gold)}
+.brand .sub{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:#9db4cc;font-weight:600;margin-top:3px}
+.badge-pts{
+  margin-left:auto;text-align:center;background:rgba(255,255,255,.10);
+  border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:6px 12px;
+}
+.badge-pts .n{font-size:20px;font-weight:800;color:var(--teal);display:block;line-height:1}
+.badge-pts .l{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#9db4cc}
+.progress{height:5px;background:rgba(255,255,255,.14);border-radius:99px;margin-top:14px;overflow:hidden}
+.progress > i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--teal),var(--gold));transition:width .35s ease}
+.savechip{
+  position:absolute;right:16px;top:calc(env(safe-area-inset-top) + 12px);
+  font-size:10px;color:#9db4cc;display:flex;align-items:center;gap:5px;opacity:0;transition:opacity .3s
+}
+.savechip.on{opacity:1}
+.savechip::before{content:"";width:7px;height:7px;border-radius:99px;background:var(--teal)}
+
+/* ---------- LAYOUT ---------- */
+.wrap{max-width:760px;margin:0 auto;padding:18px 14px 0}
+
+/* ---------- INFO CARD ---------- */
+.info{
+  background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+  padding:16px;margin-bottom:18px;
+}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field.full{grid-column:1 / -1}
+.field label{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--muted)}
+.field input,.field select{
+  font-family:var(--font);font-size:15px;color:var(--ink);
+  padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;background:#fbfcfd;
+  width:100%;transition:border-color .15s,box-shadow .15s;
+}
+.field input:focus,.field select:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(29,158,117,.14)}
+
+/* ---------- SECTION ---------- */
+.section{margin-bottom:16px}
+.section-head{
+  display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;
+  background:var(--navy);color:#fff;border-radius:12px;padding:13px 16px;
+  box-shadow:var(--shadow);
+}
+.section-head h2{margin:0;font-size:14px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700}
+.section-head .count{margin-left:auto;font-size:12px;color:#9db4cc;font-weight:600}
+.section-head .chev{transition:transform .25s;color:#9db4cc}
+.section.collapsed .chev{transform:rotate(-90deg)}
+.section-body{padding-top:12px;display:grid;gap:10px}
+.section.collapsed .section-body{display:none}
+
+/* ---------- ITEM CARD ---------- */
+.item{
+  background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+  padding:14px 14px 12px;border:1.5px solid transparent;transition:border-color .2s,opacity .2s;
+}
+.item.off{opacity:.5}
+.item-top{display:flex;align-items:center;gap:12px}
+.item-name{font-weight:700;font-size:15.5px;flex:1;min-width:0}
+.item.done{border-color:rgba(29,158,117,.35)}
+
+/* toggle oui/non */
+.toggle{display:inline-flex;background:#eef2f6;border-radius:99px;padding:3px;gap:2px}
+.toggle button{
+  border:0;background:transparent;font-family:var(--font);font-weight:700;font-size:12.5px;
+  color:var(--muted);padding:6px 13px;border-radius:99px;cursor:pointer;transition:all .15s;letter-spacing:.3px;
+}
+.toggle button[data-on="oui"].active{background:var(--teal);color:#fff;box-shadow:0 2px 6px rgba(29,158,117,.35)}
+.toggle button[data-on="non"].active{background:#8494a4;color:#fff}
+
+/* état gauge */
+.gauge-wrap{margin-top:12px}
+.gauge-label{font-size:10.5px;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:7px;display:flex;justify-content:space-between}
+.gauge-label span:last-child{color:var(--ink);font-weight:800}
+.gauge{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.gauge button{
+  border:1.5px solid var(--line);background:#fbfcfd;border-radius:9px;height:42px;
+  font-family:var(--font);font-weight:800;font-size:15px;color:#b6c1cc;cursor:pointer;
+  transition:all .13s;position:relative;
+}
+.gauge button:active{transform:scale(.94)}
+.gauge button.sel[data-v="0"]{background:var(--e0);border-color:var(--e0);color:#fff}
+.gauge button.sel[data-v="1"]{background:var(--e1);border-color:var(--e1);color:#fff}
+.gauge button.sel[data-v="2"]{background:var(--e2);border-color:var(--e2);color:#4a3c00}
+.gauge button.sel[data-v="3"]{background:var(--e3);border-color:var(--e3);color:#1f3d00}
+.gauge button.sel[data-v="4"]{background:var(--e4);border-color:var(--e4);color:#fff}
+
+/* comment */
+.cmt-btn{
+  margin-top:10px;display:inline-flex;align-items:center;gap:6px;background:none;border:0;
+  color:var(--navy);font-family:var(--font);font-weight:700;font-size:12.5px;cursor:pointer;padding:4px 0;
+}
+.cmt-btn .dot{width:6px;height:6px;border-radius:99px;background:var(--gold);opacity:0;transition:opacity .2s}
+.cmt-btn.has .dot{opacity:1}
+.cmt{margin-top:8px;display:none}
+.cmt.open{display:block}
+.cmt textarea{
+  width:100%;font-family:var(--font);font-size:14px;color:var(--ink);
+  border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;resize:vertical;min-height:60px;background:#fbfcfd;
+}
+.cmt textarea:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(29,158,117,.14)}
+
+.hide{display:none !important}
+
+/* ---------- ACTION BAR ---------- */
+.actionbar{
+  position:fixed;left:0;right:0;bottom:0;z-index:50;
+  background:rgba(255,255,255,.92);backdrop-filter:blur(10px);
+  border-top:1px solid var(--line);
+  padding:10px 14px calc(env(safe-area-inset-bottom) + 10px);
+  display:flex;gap:10px;max-width:760px;margin:0 auto;
+}
+.btn{
+  flex:1;border:0;border-radius:12px;font-family:var(--font);font-weight:700;font-size:14px;
+  padding:14px 8px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:transform .1s,filter .15s;letter-spacing:.2px;
+}
+.btn:active{transform:scale(.97)}
+.btn.ghost{background:#eef2f6;color:var(--navy);flex:0 0 auto;padding:14px 16px}
+.btn.primary{background:var(--teal);color:#fff;box-shadow:0 6px 16px rgba(29,158,117,.35)}
+.btn.primary:disabled{background:#a9c9bd;box-shadow:none;cursor:progress}
+.btn svg{width:18px;height:18px}
+
+/* ---------- TOAST + OVERLAY ---------- */
+.toast{
+  position:fixed;left:50%;bottom:96px;transform:translateX(-50%) translateY(20px);
+  background:var(--navy);color:#fff;padding:12px 18px;border-radius:12px;font-size:13.5px;font-weight:600;
+  box-shadow:0 10px 30px rgba(15,42,72,.35);opacity:0;pointer-events:none;transition:all .3s;z-index:60;max-width:90vw;text-align:center;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.err{background:var(--e0)}
+.toast.ok{background:var(--teal)}
+.overlay{
+  position:fixed;inset:0;background:rgba(15,42,72,.55);backdrop-filter:blur(3px);
+  display:none;align-items:center;justify-content:center;z-index:70;
+}
+.overlay.show{display:flex}
+.spinner{width:44px;height:44px;border:4px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:99px;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* legend */
+.legend{display:flex;gap:6px;flex-wrap:wrap;font-size:10px;color:var(--muted);margin:2px 2px 16px;align-items:center}
+.legend b{color:var(--ink)}
+.legend .sw{width:11px;height:11px;border-radius:4px;display:inline-block;margin-right:3px;vertical-align:-1px}
+
+@media print{ body{display:none} }
+</style>
+</head>
+<body>
+
+<header class="appbar">
+  <div class="savechip" id="savechip">Enregistré</div>
+  <div class="appbar-row">
+    <div class="brand">
+      <div class="logo">NARB<b>O</b>NNE ACCESS<b>O</b>IRES</div>
+      <div class="sub">Contrôle Atelier</div>
+    </div>
+    <div class="badge-pts"><span class="n" id="ptsDone">0</span><span class="l">/ 21 points</span></div>
+  </div>
+  <div class="progress"><i id="progbar"></i></div>
+</header>
+
+<div class="wrap">
+
+  <!-- INFOS -->
+  <div class="info">
+    <div class="info-grid">
+      <div class="field">
+        <label>Magasin</label>
+        <select id="f_magasin">
+          <option value="">— Choisir —</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Date</label>
+        <input type="date" id="f_date">
+      </div>
+      <div class="field full">
+        <label>Technicien</label>
+        <input type="text" id="f_tech" placeholder="Nom du technicien" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>Véhicule</label>
+        <input type="text" id="f_vehicule" placeholder="Marque / modèle" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>Immatriculation</label>
+        <input type="text" id="f_immat" placeholder="AA-123-AA" autocomplete="off" style="text-transform:uppercase">
+      </div>
+      <div class="field full">
+        <label>Client</label>
+        <input type="text" id="f_client" placeholder="Nom du client" autocomplete="off">
+      </div>
+    </div>
+  </div>
+
+  <div class="legend">
+    État&nbsp;:
+    <span><i class="sw" style="background:var(--e0)"></i>0 Critique</span>
+    <span><i class="sw" style="background:var(--e1)"></i>1 Mauvais</span>
+    <span><i class="sw" style="background:var(--e2)"></i>2 Moyen</span>
+    <span><i class="sw" style="background:var(--e3)"></i>3 Bon</span>
+    <span><i class="sw" style="background:var(--e4)"></i>4 Excellent</span>
+  </div>
+
+  <div id="sections"></div>
+
+</div>
+
+<!-- ACTION BAR -->
+<div class="actionbar">
+  <button class="btn ghost" id="btnPrint" title="Imprimer">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+  </button>
+  <button class="btn ghost" id="btnPdf" title="Aperçu PDF">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+  </button>
+  <button class="btn primary" id="btnSend">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    Envoyer vers DM
+  </button>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="overlay" id="overlay"><div class="spinner"></div></div>
+
+<!-- html2pdf pour la génération du PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+/* ================= CONFIGURATION ================= */
+const CONFIG = {
+  // ▼▼▼ Coller ici l'URL du déploiement Apps Script (Web App) ▼▼▼
+  APPS_SCRIPT_URL: "",
+  STORES: ["Montpellier","Aubagne","Les Pennes-Mirabeau","Saint-Étienne","Lyon","Annecy","Mâcon","Lyon Outdoor"]
+};
+
+const EQUIPEMENT = [
+  "Alarme","Batterie / Type","Suspensions","Vérins","Antenne","Climatisation",
+  "Panneau solaire","MPPT / PWM","Porte-vélo","Store","GPS","Serrure sécurité",
+  "Détecteur de gaz","GPL"
+];
+const ENTRETIEN = [
+  "Révision circuit gaz","Révision frigo","État suspension origine",
+  "État baies / lanterneaux","État batterie","État panneau solaire","État lyres gaz"
+];
+const TOTAL_PTS = EQUIPEMENT.length + ENTRETIEN.length;
+const ETAT_LABELS = ["Critique","Mauvais","Moyen","Bon","Excellent"];
+const LS_KEY = "controle_atelier_narbonne_v1";
+
+/* ================= ÉTAT ================= */
+let state = { infos:{}, items:{} };
+
+function slug(s){ return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"_").replace(/^_|_$/g,""); }
+
+/* ================= CONSTRUCTION UI ================= */
+function buildSelect(){
+  const sel = document.getElementById("f_magasin");
+  CONFIG.STORES.forEach(s=>{ const o=document.createElement("option"); o.value=s; o.textContent=s; sel.appendChild(o); });
+}
+
+function buildSection(title, items, oktoggleLabel){
+  const sec = document.createElement("section");
+  sec.className = "section";
+  const head = document.createElement("div");
+  head.className = "section-head";
+  head.innerHTML = `<h2>${title}</h2><span class="count"></span>
+    <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>`;
+  const body = document.createElement("div");
+  body.className = "section-body";
+
+  items.forEach(name=>{
+    const id = slug(name);
+    state.items[id] = state.items[id] || { name, equipe:null, etat:null, cmt:"" };
+    const card = document.createElement("div");
+    card.className = "item";
+    card.dataset.id = id;
+    card.innerHTML = `
+      <div class="item-top">
+        <div class="item-name">${name}</div>
+        <div class="toggle">
+          <button data-on="oui">${oktoggleLabel==="conforme"?"Conf.":"Oui"}</button>
+          <button data-on="non">Non</button>
+        </div>
+      </div>
+      <div class="gauge-wrap">
+        <div class="gauge-label"><span>État</span><span class="etat-txt">—</span></div>
+        <div class="gauge">
+          ${[0,1,2,3,4].map(v=>`<button data-v="${v}">${v}</button>`).join("")}
+        </div>
+      </div>
+      <button class="cmt-btn"><span class="dot"></span>+ Commentaire</button>
+      <div class="cmt"><textarea placeholder="Commentaire technicien…" rows="2"></textarea></div>
+    `;
+    body.appendChild(card);
+    wireCard(card, id);
+  });
+
+  head.addEventListener("click", ()=> sec.classList.toggle("collapsed"));
+  sec.appendChild(head); sec.appendChild(body);
+  sec._count = head.querySelector(".count");
+  sec._items = items.map(slug);
+  return sec;
+}
+
+function wireCard(card, id){
+  const st = state.items[id];
+  const toggle = card.querySelector(".toggle");
+  const gaugeWrap = card.querySelector(".gauge-wrap");
+  const cmtBtn = card.querySelector(".cmt-btn");
+  const cmtBox = card.querySelector(".cmt");
+  const cmtArea = card.querySelector("textarea");
+  const etatTxt = card.querySelector(".etat-txt");
+
+  toggle.querySelectorAll("button").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      const v = b.dataset.on;
+      st.equipe = (st.equipe===v) ? null : v;
+      renderCard(card, id);
+      persist();
+    });
+  });
+  card.querySelectorAll(".gauge button").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      const v = +b.dataset.v;
+      st.etat = (st.etat===v) ? null : v;
+      renderCard(card, id);
+      persist();
+    });
+  });
+  cmtBtn.addEventListener("click", ()=> cmtBox.classList.toggle("open"));
+  cmtArea.addEventListener("input", ()=>{ st.cmt = cmtArea.value; cmtBtn.classList.toggle("has", !!st.cmt.trim()); persist(); });
+
+  card._render = ()=>{
+    toggle.querySelectorAll("button").forEach(b=> b.classList.toggle("active", b.dataset.on===st.equipe));
+    const isNon = st.equipe === "non";
+    gaugeWrap.classList.toggle("hide", isNon);
+    card.classList.toggle("off", isNon);
+    card.querySelectorAll(".gauge button").forEach(b=> b.classList.toggle("sel", st.etat!==null && +b.dataset.v===st.etat));
+    etatTxt.textContent = (st.etat===null) ? "—" : `${st.etat} · ${ETAT_LABELS[st.etat]}`;
+    cmtArea.value = st.cmt || "";
+    cmtBtn.classList.toggle("has", !!(st.cmt||"").trim());
+    const done = st.equipe!==null && (isNon || st.etat!==null);
+    card.classList.toggle("done", done);
+  };
+}
+function renderCard(card,id){ card._render(); updateProgress(); }
+
+/* ================= PROGRESSION ================= */
+let sectionsEls = [];
+function updateProgress(){
+  let done=0;
+  Object.values(state.items).forEach(st=>{
+    if(st.equipe==="non" || (st.equipe!==null && st.etat!==null)) done++;
+  });
+  document.getElementById("ptsDone").textContent = done;
+  document.getElementById("progbar").style.width = Math.round(done/TOTAL_PTS*100)+"%";
+  sectionsEls.forEach(sec=>{
+    const d = sec._items.filter(id=>{const s=state.items[id];return s.equipe==="non"||(s.equipe!==null&&s.etat!==null);}).length;
+    sec._count.textContent = `${d}/${sec._items.length}`;
+  });
+}
+
+/* ================= PERSISTANCE ================= */
+let saveTimer=null;
+function collectInfos(){
+  state.infos = {
+    magasin:val("f_magasin"), date:val("f_date"), tech:val("f_tech"),
+    vehicule:val("f_vehicule"), immat:val("f_immat"), client:val("f_client")
+  };
+}
+function val(id){ return document.getElementById(id).value.trim(); }
+function persist(){
+  collectInfos();
+  localStorage.setItem(LS_KEY, JSON.stringify(state));
+  const chip = document.getElementById("savechip");
+  chip.classList.add("on");
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(()=> chip.classList.remove("on"), 1200);
+}
+function restore(){
+  const raw = localStorage.getItem(LS_KEY);
+  if(!raw) return;
+  try{
+    const saved = JSON.parse(raw);
+    if(saved.infos){
+      const i=saved.infos;
+      set("f_magasin",i.magasin);set("f_date",i.date);set("f_tech",i.tech);
+      set("f_vehicule",i.vehicule);set("f_immat",i.immat);set("f_client",i.client);
+    }
+    if(saved.items){
+      Object.keys(saved.items).forEach(id=>{ if(state.items[id]) Object.assign(state.items[id], saved.items[id]); });
+    }
+  }catch(e){}
+}
+function set(id,v){ if(v!=null) document.getElementById(id).value=v; }
+
+/* ================= PDF (archivable / imprimable) ================= */
+function etatCell(v){
+  const cols=["#D64545","#E8833A","#E3B505","#7FB93E","#1D9E75"];
+  let cells="";
+  for(let i=0;i<5;i++){
+    const on = v===i;
+    cells+=`<td style="width:26px;text-align:center;padding:3px 0">
+      <span style="display:inline-block;width:18px;height:18px;border-radius:50%;
+      ${on?`background:${cols[i]};color:#fff;font-weight:700`:`background:#f0f3f6;color:#c2ccd6`};
+      font-size:11px;line-height:18px">${i}</span></td>`;
+  }
+  return cells;
+}
+function tableRows(ids, okLabel){
+  return ids.map(id=>{
+    const s=state.items[id];
+    const okYes = s.equipe==="oui", okNo = s.equipe==="non";
+    return `<tr>
+      <td style="padding:6px 8px;border-bottom:1px solid #e6ebf0;font-size:11px;font-weight:600">${s.name}</td>
+      <td style="text-align:center;border-bottom:1px solid #e6ebf0;font-size:10px">
+        <span style="color:${okYes?'#1D9E75':'#c2ccd6'};font-weight:700">${okLabel} ${okYes?'✓':''}</span>
+        &nbsp;/&nbsp;<span style="color:${okNo?'#8494a4':'#c2ccd6'};font-weight:700">Non ${okNo?'✓':''}</span>
+      </td>
+      ${etatCell(s.etat)}
+      <td style="padding:6px 8px;border-bottom:1px solid #e6ebf0;font-size:10px;color:#333">${(s.cmt||'').replace(/</g,'&lt;')}</td>
+    </tr>`;
+  }).join("");
+}
+function buildPdfHtml(){
+  const i=state.infos;
+  const head = `<tr style="background:#0F2A48;color:#fff">
+      <th style="padding:6px 8px;text-align:left;font-size:9.5px;letter-spacing:.5px">DÉSIGNATION</th>
+      <th style="padding:6px 4px;font-size:9.5px;width:120px">ÉQUIPÉ</th>
+      <th colspan="5" style="padding:6px 4px;font-size:9.5px">ÉTAT (0 → 4)</th>
+      <th style="padding:6px 8px;text-align:left;font-size:9.5px">COMMENTAIRES</th>
+    </tr>`;
+  const headEnt = head.replace("ÉQUIPÉ","CONFORME");
+  return `<div style="font-family:Arial,Helvetica,sans-serif;color:#1b2733;width:760px;padding:26px 30px;background:#fff">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;border-bottom:3px solid #0F2A48;padding-bottom:12px;margin-bottom:16px">
+      <div>
+        <div style="font-size:22px;font-weight:800;color:#0F2A48;letter-spacing:.5px">NARB<span style="color:#C9A227">O</span>NNE ACCESS<span style="color:#C9A227">O</span>IRES</div>
+        <div style="font-size:11px;letter-spacing:3px;color:#1D9E75;font-weight:700;text-transform:uppercase;margin-top:2px">Fiche de contrôle atelier · 18 points</div>
+      </div>
+      <div style="text-align:right;font-size:11px;color:#6a7a8a">Édité le ${new Date().toLocaleDateString('fr-FR')}</div>
+    </div>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:18px;font-size:11px">
+      <tr>
+        <td style="padding:4px 8px"><b>Magasin :</b> ${i.magasin||'—'}</td>
+        <td style="padding:4px 8px"><b>Date :</b> ${i.date? new Date(i.date).toLocaleDateString('fr-FR'):'—'}</td>
+        <td style="padding:4px 8px"><b>Technicien :</b> ${i.tech||'—'}</td>
+      </tr>
+      <tr>
+        <td style="padding:4px 8px"><b>Véhicule :</b> ${i.vehicule||'—'}</td>
+        <td style="padding:4px 8px"><b>Immat. :</b> ${(i.immat||'—').toUpperCase()}</td>
+        <td style="padding:4px 8px"><b>Client :</b> ${i.client||'—'}</td>
+      </tr>
+    </table>
+
+    <div style="background:#1D9E75;color:#fff;padding:6px 12px;font-size:12px;font-weight:700;letter-spacing:1px;border-radius:4px 4px 0 0">ÉQUIPEMENT</div>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:18px;border:1px solid #e6ebf0">
+      ${head}${tableRows(EQUIPEMENT.map(slug),"Oui")}
+    </table>
+
+    <div style="background:#1D9E75;color:#fff;padding:6px 12px;font-size:12px;font-weight:700;letter-spacing:1px;border-radius:4px 4px 0 0">ENTRETIEN / RÉVISION / ÉTAT</div>
+    <table style="width:100%;border-collapse:collapse;border:1px solid #e6ebf0">
+      ${headEnt}${tableRows(ENTRETIEN.map(slug),"Conf.")}
+    </table>
+
+    <div style="margin-top:26px;display:flex;justify-content:space-between;font-size:10px;color:#6a7a8a">
+      <div>Signature technicien : ______________________</div>
+      <div>Narbonne Accessoires — Document interne</div>
+    </div>
+  </div>`;
+}
+function pdfFilename(){
+  const i=state.infos;
+  const d=(i.date||new Date().toISOString().slice(0,10)).replace(/-/g,"");
+  const immat=(i.immat||"vehicule").replace(/[^a-zA-Z0-9]/g,"").toUpperCase();
+  return `Controle_${d}_${immat}.pdf`;
+}
+async function makePdfBlob(){
+  const holder=document.createElement("div");
+  holder.style.position="fixed";holder.style.left="-9999px";holder.style.top="0";
+  holder.innerHTML=buildPdfHtml();
+  document.body.appendChild(holder);
+  const opt={margin:[8,0,8,0],filename:pdfFilename(),image:{type:"jpeg",quality:.96},
+    html2canvas:{scale:2,useCORS:true},jsPDF:{unit:"mm",format:"a4",orientation:"portrait"}};
+  const blob = await html2pdf().set(opt).from(holder.firstElementChild).outputPdf("blob");
+  document.body.removeChild(holder);
+  return blob;
+}
+
+/* ================= ACTIONS ================= */
+function toast(msg,type){ const t=document.getElementById("toast"); t.textContent=msg; t.className="toast show "+(type||""); setTimeout(()=>t.classList.remove("show"),3200); }
+function overlay(on){ document.getElementById("overlay").classList.toggle("show",on); }
+
+document.getElementById("btnPdf").addEventListener("click", async ()=>{
+  persist(); overlay(true);
+  try{ const blob=await makePdfBlob(); const url=URL.createObjectURL(blob);
+    const a=document.createElement("a"); a.href=url; a.download=pdfFilename(); a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),4000);
+  }catch(e){ toast("Erreur génération PDF","err"); } finally{ overlay(false); }
+});
+
+document.getElementById("btnPrint").addEventListener("click", ()=>{
+  persist();
+  const w=window.open("","_blank");
+  w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${pdfFilename()}</title></head><body onload="print()">${buildPdfHtml()}</body></html>`);
+  w.document.close();
+});
+
+document.getElementById("btnSend").addEventListener("click", async ()=>{
+  persist();
+  if(!state.infos.magasin || !state.infos.immat){ toast("Renseigner Magasin et Immatriculation","err"); return; }
+  if(!CONFIG.APPS_SCRIPT_URL){ toast("URL Apps Script non configurée (voir CONFIG)","err"); return; }
+  const btn=document.getElementById("btnSend"); btn.disabled=true; overlay(true);
+  try{
+    const blob=await makePdfBlob();
+    const b64 = await blobToBase64(blob);
+    const payload={ filename:pdfFilename(), pdfBase64:b64, meta:state.infos, items:state.items };
+    const res=await fetch(CONFIG.APPS_SCRIPT_URL,{
+      method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body:JSON.stringify(payload)
+    });
+    const out=await res.json();
+    if(out && out.ok){ toast("Fiche envoyée vers la boîte DM ✓","ok"); }
+    else throw new Error(out&&out.error||"Réponse inattendue");
+  }catch(e){ toast("Échec de l'envoi : "+e.message,"err"); }
+  finally{ btn.disabled=false; overlay(false); }
+});
+
+function blobToBase64(blob){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result.split(",")[1]); r.onerror=rej; r.readAsDataURL(blob); }); }
+
+/* ================= INIT ================= */
+function init(){
+  buildSelect();
+  if(!document.getElementById("f_date").value) document.getElementById("f_date").value=new Date().toISOString().slice(0,10);
+  const c=document.getElementById("sections");
+  const s1=buildSection("Équipement",EQUIPEMENT,"oui");
+  const s2=buildSection("Entretien / Révision / État",ENTRETIEN,"conforme");
+  c.appendChild(s1); c.appendChild(s2);
+  sectionsEls=[s1,s2];
+  restore();
+  document.querySelectorAll(".item").forEach(card=> card._render());
+  ["f_magasin","f_date","f_tech","f_vehicule","f_immat","f_client"].forEach(id=>{
+    document.getElementById(id).addEventListener("input", persist);
+    document.getElementById(id).addEventListener("change", persist);
+  });
+  updateProgress();
+}
+init();
+</script>
+</body>
+</html>
